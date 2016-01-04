@@ -6,7 +6,7 @@ import (
 
 func (tg *TimeGlob) Prev(now time.Time) time.Time {
 	// Find the closest time which matches the glob and is before, or equal to
-	// now. Returns UNKNOWN if there isn't one.
+	// now. Returns UNKNOWN if there isn't a match.
 
 	result := tg.prevDate(now.In(tg.location))
 	if result != UNKNOWN {

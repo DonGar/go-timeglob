@@ -7,8 +7,8 @@ import (
 const YEAR_SEARCH_DEPTH = 5
 
 func (tg *TimeGlob) Next(now time.Time) time.Time {
-	// Find the closest time which matches the glob and is after to
-	// now. Returns UNKNOWN if there isn't one.
+	// Find the closest time which matches the glob and is after now. Returns
+	// UNKNOWN if there isn't a match.
 
 	result := tg.nextDate(now.In(tg.location))
 	if result != UNKNOWN {
