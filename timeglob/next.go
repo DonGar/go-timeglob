@@ -34,17 +34,17 @@ func (tg *TimeGlob) expandNext(now time.Time) (years, months, days, hours, minut
 
 	days = tg.day
 	if len(days) == 0 {
-		days = intRange(1, 31)
+		days = intRange(1, 32)
 	}
 
 	hours = tg.hour
 	if len(hours) == 0 {
-		hours = intRange(0, 23)
+		hours = intRange(0, 24)
 	}
 
 	minutes = tg.minute
 	if len(minutes) == 0 {
-		minutes = intRange(0, 60)
+		minutes = intRange(0, 61)
 	}
 
 	return years, months, days, hours, minutes

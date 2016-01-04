@@ -26,6 +26,8 @@ func intRange(begin, end int) []int {
 }
 
 func reverseCopy(src []int) []int {
+	// Return a copy of an int slice with the order reversed.
+
 	if src == nil {
 		return src
 	}
@@ -42,7 +44,6 @@ func reverseCopy(src []int) []int {
 }
 
 func (tg *TimeGlob) dateNoNormalize(year, month, day, hour, minute int) time.Time {
-
 	// This is a wrapper around time.Date that ensures no values were normalized.
 	// IE: Feb 30 doesn't become Mar 2.
 
@@ -65,6 +66,7 @@ func (tg *TimeGlob) dateNoNormalize(year, month, day, hour, minute int) time.Tim
 
 func (tg *TimeGlob) addMinutesNoNormalize(base time.Time, minute int) time.Time {
 	// Add minutes to an even hour, without normalizing.
+
 	result := base.Add(time.Duration(minute) * time.Minute)
 
 	if result.Hour() != base.Hour() || result.Minute() != minute {
