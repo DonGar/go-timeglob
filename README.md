@@ -39,16 +39,16 @@ isn't present, it defaults to 0:0 (midnight at the start of the day). During
 special cases in which an hour can repeat (like start/end of daylight savings
 times) , a \* will match both instances of the hour, but an explicit value will
 only match the first. This is intended to match the intuitive expectations of
-'run once an hour, every hour' or 'run once a day at given time'.
+'run once an hour' or 'run once a day at a given time'.
 
 The timezone is any timezone name supported by Go's
-[time.LoadLocation](https://golang.org/pkg/time/#LoadLocation) is supported
+[time.LoadLocation](https://golang.org/pkg/time/#LoadLocation)
 (including 'Local' and 'UTC'). If not present 'Local' is used.
 
 ## Next/Prev ##
 
 After parsing a glob, the operations available are Next, and Prev. Both methods
-require a 'now' argument that they calculate from. they return timeglob.UNKNOWN
+require a 'now' argument that they calculate from. They return timeglob.UNKNOWN
 if there is no valid match. The result will be in the same timezone as the 'now'
 argument, which does not have to match the timezone of the glob.
 
@@ -73,4 +73,4 @@ resources.
 This library was knocked together during a vacation, it probabably has bugs
 ([time handling is hard](http://infiniteundo.com/post/25326999628/falsehoods-
 programmers-believe-about-time)). I welcome bug reports, or better yet, test
-cases that reproduce problems.
+cases that reproduce problems. The Ticker class is pretty much untested so far.
