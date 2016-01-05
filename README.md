@@ -28,10 +28,18 @@ After parsing a glob, the operations available are Next, and Prev. Both methods 
 * Next: > now
 * Prev: <= now
 
+## Ticker ##
+
+Calling Ticker() on a TimeGlob returns an object that sends time values on
+ticker.C for each time glob match. It must be stopped with "Stop()" to release
+resources.
+
+## TODOs ##
+* Improve parsing error messages.
+* Add value bounds checking during parsing.
+* Add day of week handling.
+* This library 'searches' for Next/Prev in a way that could provide really terrible performance for some edge cases, though it will alweays complete. There is room for improvement.
+
 ## Notes ##
 
 This library was knocked together during a holiday vacation, it probabably has bugs ([time handling is hard](http://infiniteundo.com/post/25326999628/falsehoods-programmers-believe-about-time)). I welcome bug reports, or better yet, test cases that reproduce problems.
-
-This library 'searches' for Next/Prev in a way that could provide really terrible performance for some edge cases. I haven't yet done anything to address this.
-
-I'll probably add something similar to [time.Ticker](https://golang.org/pkg/time/#Ticker) to this library in time.
