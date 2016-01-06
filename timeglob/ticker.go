@@ -27,8 +27,9 @@ func (tg *TimeGlob) Ticker() *Ticker {
 	// Create the timer, now that there is a ticker to call tick() on.
 	now := time.Now().In(tg.location)
 	next := tg.Next(now)
-	result.timer = time.AfterFunc(next.Sub(now), result.tick)
-
+	if next != UNKNOWN {
+		result.timer = time.AfterFunc(next.Sub(now), result.tick)
+	}
 	return result
 }
 
@@ -42,9 +43,13 @@ func (t *Ticker) tick() {
 	}
 
 	next := t.tg.Next(now)
-	t.timer.Reset(next.Sub(now))
+	if next != UNKNOWN {
+		t.timer.Reset(next.Sub(now))
+	}
 }
 
 func (t *Ticker) Stop() {
-	t.timer.Stop()
+	if t.timer != nil {
+		t.timer.Stop()
+	}
 }
