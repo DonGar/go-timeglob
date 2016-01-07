@@ -22,18 +22,18 @@ func (suite *MySuite) TestPrevExplicit(c *check.C) {
 	tg, err := Parse("2015/11/25 19:37 America/New_York")
 	c.Assert(err, check.IsNil)
 
-	matched := tg.dateNoNormalize(2015, 11, 25, 19, 37)
+	matched := tg.dateNoNormalize(2015, 11, 25, 19, 37, 0)
 
 	// Year
-	now := tg.dateNoNormalize(2016, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2016, 1, 1, 0, 0, 0)
 	validatePrev(c, tg, now, matched)
 
 	// Month
-	now = tg.dateNoNormalize(2015, 12, 16, 20, 40)
+	now = tg.dateNoNormalize(2015, 12, 16, 20, 40, 0)
 	validatePrev(c, tg, now, matched)
 
 	// Day
-	now = tg.dateNoNormalize(2015, 11, 30, 20, 40)
+	now = tg.dateNoNormalize(2015, 11, 30, 20, 40, 0)
 	validatePrev(c, tg, now, matched)
 
 	// We don't have to be much in the future for this to match.
@@ -45,11 +45,11 @@ func (suite *MySuite) TestPrevExplicit(c *check.C) {
 	validatePrev(c, tg, now, matched)
 
 	// Earlier time.
-	now = tg.dateNoNormalize(2015, 11, 25, 19, 36)
+	now = tg.dateNoNormalize(2015, 11, 25, 19, 36, 0)
 	validatePrev(c, tg, now, UNKNOWN)
 
 	// Much earlier time.
-	now = tg.dateNoNormalize(2014, 1, 1, 0, 0)
+	now = tg.dateNoNormalize(2014, 1, 1, 0, 0, 0)
 	validatePrev(c, tg, now, UNKNOWN)
 }
 
@@ -57,26 +57,26 @@ func (suite *MySuite) TestPrevDate(c *check.C) {
 	tg, err := Parse("*/12/25 America/New_York")
 	c.Assert(err, check.IsNil)
 
-	expected2015 := tg.dateNoNormalize(2015, 12, 25, 0, 0)
-	expected2016 := tg.dateNoNormalize(2016, 12, 25, 0, 0)
+	expected2015 := tg.dateNoNormalize(2015, 12, 25, 0, 0, 0)
+	expected2016 := tg.dateNoNormalize(2016, 12, 25, 0, 0, 0)
 
 	// Year change.
-	now := tg.dateNoNormalize(2017, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2017, 1, 1, 0, 0, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// Day change.
-	now = tg.dateNoNormalize(2016, 12, 30, 20, 40)
+	now = tg.dateNoNormalize(2016, 12, 30, 20, 40, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// Time change.
-	now = tg.dateNoNormalize(2016, 12, 25, 19, 37)
+	now = tg.dateNoNormalize(2016, 12, 25, 19, 37, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// Slightly earlier time.
-	now = tg.dateNoNormalize(2016, 12, 24, 19, 37)
+	now = tg.dateNoNormalize(2016, 12, 24, 19, 37, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2015)
 
@@ -90,26 +90,26 @@ func (suite *MySuite) TestPrevDateLeapDay(c *check.C) {
 	tg, err := Parse("*/2/29 America/New_York")
 	c.Assert(err, check.IsNil)
 
-	expected2012 := tg.dateNoNormalize(2012, 2, 29, 0, 0)
-	expected2016 := tg.dateNoNormalize(2016, 2, 29, 0, 0)
+	expected2012 := tg.dateNoNormalize(2012, 2, 29, 0, 0, 0)
+	expected2016 := tg.dateNoNormalize(2016, 2, 29, 0, 0, 0)
 
 	// Year change.
-	now := tg.dateNoNormalize(2017, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2017, 1, 1, 0, 0, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// Month change.
-	now = tg.dateNoNormalize(2016, 12, 25, 19, 37)
+	now = tg.dateNoNormalize(2016, 12, 25, 19, 37, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// Same day.
-	now = tg.dateNoNormalize(2016, 2, 29, 4, 5)
+	now = tg.dateNoNormalize(2016, 2, 29, 4, 5, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2016)
 
 	// 4 years back.
-	now = tg.dateNoNormalize(2016, 2, 28, 4, 5)
+	now = tg.dateNoNormalize(2016, 2, 28, 4, 5, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, expected2012)
 }
@@ -119,24 +119,24 @@ func (suite *MySuite) TestPrevDay(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	// Previous year.
-	now := tg.dateNoNormalize(2015, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2015, 1, 1, 0, 0, 0)
 	result := tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2014, 12, 29, 0, 0))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2014, 12, 29, 0, 0, 0))
 
 	// Previous month.
-	now = tg.dateNoNormalize(2015, 2, 1, 19, 37)
+	now = tg.dateNoNormalize(2015, 2, 1, 19, 37, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0, 0))
 
 	// Earlier day.
-	now = tg.dateNoNormalize(2015, 1, 30, 4, 5)
+	now = tg.dateNoNormalize(2015, 1, 30, 4, 5, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0, 0))
 
 	// Same day, later time.
-	now = tg.dateNoNormalize(2015, 1, 29, 19, 37)
+	now = tg.dateNoNormalize(2015, 1, 29, 19, 37, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 0, 0, 0))
 }
 
 func (suite *MySuite) TestPrevFixedTime(c *check.C) {
@@ -144,24 +144,24 @@ func (suite *MySuite) TestPrevFixedTime(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	// Previous year.
-	now := tg.dateNoNormalize(2015, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2015, 1, 1, 0, 0, 0)
 	result := tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2014, 12, 31, 13, 12))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2014, 12, 31, 13, 12, 0))
 
 	// Previous month.
-	now = tg.dateNoNormalize(2015, 2, 1, 12, 3)
+	now = tg.dateNoNormalize(2015, 2, 1, 12, 3, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 31, 13, 12))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 31, 13, 12, 0))
 
 	// Earlier day.
-	now = tg.dateNoNormalize(2015, 1, 30, 4, 5)
+	now = tg.dateNoNormalize(2015, 1, 30, 4, 5, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 13, 12))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 13, 12, 0))
 
 	// Same day, later time.
-	now = tg.dateNoNormalize(2015, 1, 29, 19, 37)
+	now = tg.dateNoNormalize(2015, 1, 29, 19, 37, 0)
 	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 13, 12))
+	c.Check(result, check.Equals, tg.dateNoNormalize(2015, 1, 29, 13, 12, 0))
 }
 
 func (suite *MySuite) TestPrevDslStart(c *check.C) {
@@ -169,11 +169,11 @@ func (suite *MySuite) TestPrevDslStart(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	// There is no 2 AM of this day, in that timezone.
-	expectedA := tg.dateNoNormalize(2016, 3, 13, 3, 12)
-	expectedB := tg.dateNoNormalize(2016, 3, 13, 1, 12)
-	expectedC := tg.dateNoNormalize(2016, 3, 13, 0, 12)
+	expectedA := tg.dateNoNormalize(2016, 3, 13, 3, 12, 0)
+	expectedB := tg.dateNoNormalize(2016, 3, 13, 1, 12, 0)
+	expectedC := tg.dateNoNormalize(2016, 3, 13, 0, 12, 0)
 
-	now := tg.dateNoNormalize(2016, 3, 13, 4, 10)
+	now := tg.dateNoNormalize(2016, 3, 13, 4, 10, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, expectedA)
 
@@ -191,15 +191,15 @@ func (suite *MySuite) TestPrevDslStop(c *check.C) {
 	c.Assert(err, check.IsNil)
 
 	// 2 AM repeats on this day, in that timezone.
-	expectedA := tg.dateNoNormalize(2016, 11, 6, 3, 12)
+	expectedA := tg.dateNoNormalize(2016, 11, 6, 3, 12, 0)
 	expectedB := expectedA.Add(-1 * time.Hour)
 	expectedC := expectedB.Add(-1 * time.Hour)
 	expectedD := expectedC.Add(-1 * time.Hour)
 	c.Assert(expectedB, check.Not(check.Equals), expectedC)
 	c.Assert(expectedC, check.Not(check.Equals), expectedD)
-	c.Assert(expectedD, check.Equals, tg.dateNoNormalize(2016, 11, 6, 1, 12))
+	c.Assert(expectedD, check.Equals, tg.dateNoNormalize(2016, 11, 6, 1, 12, 0))
 
-	now := tg.dateNoNormalize(2016, 11, 6, 3, 14)
+	now := tg.dateNoNormalize(2016, 11, 6, 3, 14, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, expectedA)
 
@@ -220,11 +220,11 @@ func (suite *MySuite) TestPrevMinute(c *check.C) {
 	tg, err := Parse("*:12 America/New_York")
 	c.Assert(err, check.IsNil)
 
-	expectedA := tg.dateNoNormalize(2015, 12, 31, 23, 12)
-	expectedB := tg.dateNoNormalize(2015, 12, 31, 22, 12)
-	expectedC := tg.dateNoNormalize(2015, 12, 31, 21, 12)
+	expectedA := tg.dateNoNormalize(2015, 12, 31, 23, 12, 0)
+	expectedB := tg.dateNoNormalize(2015, 12, 31, 22, 12, 0)
+	expectedC := tg.dateNoNormalize(2015, 12, 31, 21, 12, 0)
 
-	now := tg.dateNoNormalize(2016, 1, 1, 0, 11)
+	now := tg.dateNoNormalize(2016, 1, 1, 0, 11, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, expectedA)
 
@@ -241,15 +241,15 @@ func (suite *MySuite) TestPrevWild(c *check.C) {
 	tg, err := Parse("*:* America/New_York")
 	c.Assert(err, check.IsNil)
 
-	now := tg.dateNoNormalize(2015, 1, 1, 0, 0)
+	now := tg.dateNoNormalize(2015, 1, 1, 0, 0, 0)
 	result := tg.Prev(now)
 	c.Check(result, check.Equals, now)
 
-	now = tg.dateNoNormalize(2014, 12, 31, 23, 59)
+	now = tg.dateNoNormalize(2014, 12, 31, 23, 59, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, now)
 
-	now = tg.dateNoNormalize(2014, 12, 31, 0, 0)
+	now = tg.dateNoNormalize(2014, 12, 31, 0, 0, 0)
 	result = tg.Prev(now)
 	c.Check(result, check.Equals, now)
 }
@@ -260,40 +260,40 @@ func (suite *MySuite) TestPrevComma(c *check.C) {
 
 	// Walk through the entire sequence.
 	validatePrevSequence(c, tg,
-		tg.dateNoNormalize(2017, 3, 1, 0, 0),
+		tg.dateNoNormalize(2017, 3, 1, 0, 0, 0),
 		[]time.Time{
-			tg.dateNoNormalize(2016, 3, 20, 14, 30),
-			tg.dateNoNormalize(2016, 3, 20, 14, 0),
-			tg.dateNoNormalize(2016, 3, 20, 2, 30),
-			tg.dateNoNormalize(2016, 3, 20, 2, 0),
-			tg.dateNoNormalize(2016, 3, 10, 14, 30),
-			tg.dateNoNormalize(2016, 3, 10, 14, 0),
-			tg.dateNoNormalize(2016, 3, 10, 2, 30),
-			tg.dateNoNormalize(2016, 3, 10, 2, 0),
-			tg.dateNoNormalize(2016, 2, 20, 14, 30),
-			tg.dateNoNormalize(2016, 2, 20, 14, 0),
-			tg.dateNoNormalize(2016, 2, 20, 2, 30),
-			tg.dateNoNormalize(2016, 2, 20, 2, 0),
-			tg.dateNoNormalize(2016, 2, 10, 14, 30),
-			tg.dateNoNormalize(2016, 2, 10, 14, 0),
-			tg.dateNoNormalize(2016, 2, 10, 2, 30),
-			tg.dateNoNormalize(2016, 2, 10, 2, 0),
-			tg.dateNoNormalize(2015, 3, 20, 14, 30),
-			tg.dateNoNormalize(2015, 3, 20, 14, 0),
-			tg.dateNoNormalize(2015, 3, 20, 2, 30),
-			tg.dateNoNormalize(2015, 3, 20, 2, 0),
-			tg.dateNoNormalize(2015, 3, 10, 14, 30),
-			tg.dateNoNormalize(2015, 3, 10, 14, 0),
-			tg.dateNoNormalize(2015, 3, 10, 2, 30),
-			tg.dateNoNormalize(2015, 3, 10, 2, 0),
-			tg.dateNoNormalize(2015, 2, 20, 14, 30),
-			tg.dateNoNormalize(2015, 2, 20, 14, 0),
-			tg.dateNoNormalize(2015, 2, 20, 2, 30),
-			tg.dateNoNormalize(2015, 2, 20, 2, 0),
-			tg.dateNoNormalize(2015, 2, 10, 14, 30),
-			tg.dateNoNormalize(2015, 2, 10, 14, 0),
-			tg.dateNoNormalize(2015, 2, 10, 2, 30),
-			tg.dateNoNormalize(2015, 2, 10, 2, 0),
+			tg.dateNoNormalize(2016, 3, 20, 14, 30, 0),
+			tg.dateNoNormalize(2016, 3, 20, 14, 0, 0),
+			tg.dateNoNormalize(2016, 3, 20, 2, 30, 0),
+			tg.dateNoNormalize(2016, 3, 20, 2, 0, 0),
+			tg.dateNoNormalize(2016, 3, 10, 14, 30, 0),
+			tg.dateNoNormalize(2016, 3, 10, 14, 0, 0),
+			tg.dateNoNormalize(2016, 3, 10, 2, 30, 0),
+			tg.dateNoNormalize(2016, 3, 10, 2, 0, 0),
+			tg.dateNoNormalize(2016, 2, 20, 14, 30, 0),
+			tg.dateNoNormalize(2016, 2, 20, 14, 0, 0),
+			tg.dateNoNormalize(2016, 2, 20, 2, 30, 0),
+			tg.dateNoNormalize(2016, 2, 20, 2, 0, 0),
+			tg.dateNoNormalize(2016, 2, 10, 14, 30, 0),
+			tg.dateNoNormalize(2016, 2, 10, 14, 0, 0),
+			tg.dateNoNormalize(2016, 2, 10, 2, 30, 0),
+			tg.dateNoNormalize(2016, 2, 10, 2, 0, 0),
+			tg.dateNoNormalize(2015, 3, 20, 14, 30, 0),
+			tg.dateNoNormalize(2015, 3, 20, 14, 0, 0),
+			tg.dateNoNormalize(2015, 3, 20, 2, 30, 0),
+			tg.dateNoNormalize(2015, 3, 20, 2, 0, 0),
+			tg.dateNoNormalize(2015, 3, 10, 14, 30, 0),
+			tg.dateNoNormalize(2015, 3, 10, 14, 0, 0),
+			tg.dateNoNormalize(2015, 3, 10, 2, 30, 0),
+			tg.dateNoNormalize(2015, 3, 10, 2, 0, 0),
+			tg.dateNoNormalize(2015, 2, 20, 14, 30, 0),
+			tg.dateNoNormalize(2015, 2, 20, 14, 0, 0),
+			tg.dateNoNormalize(2015, 2, 20, 2, 30, 0),
+			tg.dateNoNormalize(2015, 2, 20, 2, 0, 0),
+			tg.dateNoNormalize(2015, 2, 10, 14, 30, 0),
+			tg.dateNoNormalize(2015, 2, 10, 14, 0, 0),
+			tg.dateNoNormalize(2015, 2, 10, 2, 30, 0),
+			tg.dateNoNormalize(2015, 2, 10, 2, 0, 0),
 			UNKNOWN,
 		})
 }

@@ -58,7 +58,7 @@ func (tg *TimeGlob) nextDate(now time.Time) time.Time {
 			for _, day := range days {
 				for _, hour := range hours {
 					for _, minute := range minutes {
-						result := tg.dateNoNormalize(year, month, day, hour, minute)
+						result := tg.dateNoNormalize(year, month, day, hour, minute, 0)
 						if result != UNKNOWN && now.Before(result) {
 							return result
 						}
@@ -70,12 +70,12 @@ func (tg *TimeGlob) nextDate(now time.Time) time.Time {
 					// the same hour value (IE: 1 AM repeating), process minutes from the
 					// extra hour in a special loop.
 					if len(tg.hour) == 0 {
-						base := tg.dateNoNormalize(year, month, day, hour, 0)
+						base := tg.dateNoNormalize(year, month, day, hour, 0, 0)
 						advanced := base.Add(time.Hour)
 
 						if base.Hour() == advanced.Hour() {
 							for _, minute := range minutes {
-								result := tg.addMinutesNoNormalize(advanced, minute)
+								result := tg.adjustMinutesSeconds(advanced, minute, 0)
 								if result != UNKNOWN && now.Before(result) {
 									return result
 								}

@@ -43,13 +43,13 @@ func reverseCopy(src []int) []int {
 	return result
 }
 
-func (tg *TimeGlob) dateNoNormalize(year, month, day, hour, minute int) time.Time {
+func (tg *TimeGlob) dateNoNormalize(year, month, day, hour, minute, second int) time.Time {
 	// This is a wrapper around time.Date that ensures no values were normalized.
 	// IE: Feb 30 doesn't become Mar 2.
 
 	result := time.Date(
 		year, time.Month(month), day,
-		hour, minute, 0, 0,
+		hour, minute, second, 0,
 		tg.location,
 	)
 
@@ -57,19 +57,22 @@ func (tg *TimeGlob) dateNoNormalize(year, month, day, hour, minute int) time.Tim
 		result.Month() != time.Month(month) ||
 		result.Day() != day ||
 		result.Hour() != hour ||
-		result.Minute() != minute {
+		result.Minute() != minute ||
+		result.Second() != second {
 		return UNKNOWN
 	}
 
 	return result
 }
 
-func (tg *TimeGlob) addMinutesNoNormalize(base time.Time, minute int) time.Time {
+func (tg *TimeGlob) adjustMinutesSeconds(base time.Time, minute, second int) time.Time {
 	// Add minutes to an even hour, without normalizing.
 
-	result := base.Add(time.Duration(minute) * time.Minute)
+	result := base.Add(
+		time.Duration(minute)*time.Minute +
+			time.Duration(second)*time.Second)
 
-	if result.Hour() != base.Hour() || result.Minute() != minute {
+	if result.Hour() != base.Hour() || result.Minute() != minute || result.Second() != second {
 		return UNKNOWN
 	}
 
