@@ -82,7 +82,7 @@ func (tg *TimeGlob) parseDate(glob string) bool {
 }
 
 func (tg *TimeGlob) parseTime(glob string) bool {
-	re := regexp.MustCompile(`^([0-9,]+|\*):([0-9,]+|\*)$`)
+	re := regexp.MustCompile(`^([0-9,]+|\*):([0-9,]+|\*)(:([0-9,]+|\*))?$`)
 	submatches := re.FindStringSubmatch(glob)
 
 	if submatches == nil {
@@ -91,6 +91,11 @@ func (tg *TimeGlob) parseTime(glob string) bool {
 
 	tg.hour = parseIntList(submatches[1])
 	tg.minute = parseIntList(submatches[2])
+	if submatches[4] != "" {
+		// If seconds aren't explicitly set, retain the default value of '0'
+		tg.second = parseIntList(submatches[4])
+	}
+
 	return true
 }
 

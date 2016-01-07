@@ -14,12 +14,13 @@ type TimeGlob struct {
 	day      []int
 	hour     []int
 	minute   []int
+	second   []int
 	location *time.Location
 }
 
 func new() TimeGlob {
 	return TimeGlob{
 		nil, nil, nil,
-		[]int{0}, []int{0},
+		[]int{0}, []int{0}, []int{0},
 		time.Local}
 }
