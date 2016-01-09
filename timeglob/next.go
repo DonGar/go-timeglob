@@ -58,9 +58,19 @@ func (tg *TimeGlob) expandNext(now time.Time) (years, months, days, hours, minut
 func (tg *TimeGlob) nextDate(now time.Time) time.Time {
 	years, months, days, hours, minutes, seconds := tg.expandNext(now)
 
+	dateNow := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, tg.location)
+
 	for _, year := range years {
 		for _, month := range months {
 			for _, day := range days {
+
+				// For performance validate that each date might be parse of a valid
+				// result before searching inside the date.
+				searchDate := tg.dateNoNormalize(year, month, day, 0, 0, 0)
+				if searchDate == UNKNOWN || searchDate.Before(dateNow) {
+					continue
+				}
+
 				for _, hour := range hours {
 					for _, minute := range minutes {
 						for _, second := range seconds {

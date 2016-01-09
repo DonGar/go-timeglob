@@ -316,3 +316,19 @@ func (suite *MySuite) TestNextComma(c *check.C) {
 			UNKNOWN,
 		})
 }
+
+func (suite *MySuite) TestNextPerformance(c *check.C) {
+	// Demonstrate performance issues.
+
+	// This used to search through every second of the year for each step.
+	tg, err := Parse("*:*:* UTC")
+	c.Assert(err, check.IsNil)
+
+	validateNextSequence(c, tg,
+		tg.dateNoNormalize(2016, 12, 31, 23, 59, 57),
+		[]time.Time{
+			tg.dateNoNormalize(2016, 12, 31, 23, 59, 58),
+			tg.dateNoNormalize(2016, 12, 31, 23, 59, 59),
+			tg.dateNoNormalize(2017, 1, 1, 0, 0, 0),
+		})
+}

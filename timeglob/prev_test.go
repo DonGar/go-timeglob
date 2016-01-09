@@ -11,10 +11,9 @@ func validatePrev(c *check.C, tg *TimeGlob, now, expected time.Time) {
 
 func validatePrevSequence(c *check.C, tg *TimeGlob, start time.Time, expected []time.Time) {
 	for _, exp := range expected {
-		start = tg.Prev(start)
-		c.Check(start, check.Equals, exp)
 		// Prev uses <= logic so would enver step back without help.
-		start = start.Add(-1 * time.Nanosecond)
+		start = tg.Prev(start.Add(-1 * time.Nanosecond))
+		c.Check(start, check.Equals, exp)
 	}
 }
 
@@ -327,5 +326,21 @@ func (suite *MySuite) TestPrevComma(c *check.C) {
 			tg.dateNoNormalize(2015, 2, 10, 2, 0, 45),
 			tg.dateNoNormalize(2015, 2, 10, 2, 0, 15),
 			UNKNOWN,
+		})
+}
+
+func (suite *MySuite) TestPrevPerformance(c *check.C) {
+	// Demonstrate performance issues.
+
+	// This used to search through every second of the year for each step.
+	tg, err := Parse("*:*:* UTC")
+	c.Assert(err, check.IsNil)
+
+	validatePrevSequence(c, tg,
+		tg.dateNoNormalize(2017, 1, 1, 0, 0, 2),
+		[]time.Time{
+			tg.dateNoNormalize(2017, 1, 1, 0, 0, 1),
+			tg.dateNoNormalize(2017, 1, 1, 0, 0, 0),
+			tg.dateNoNormalize(2016, 12, 31, 23, 59, 59),
 		})
 }

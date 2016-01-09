@@ -56,9 +56,19 @@ func (tg *TimeGlob) expandPrev(now time.Time) (years, months, days, hours, minut
 func (tg *TimeGlob) prevDate(now time.Time) time.Time {
 	years, months, days, hours, minutes, seconds := tg.expandPrev(now)
 
+	dateNow := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, tg.location)
+
 	for _, year := range years {
 		for _, month := range months {
 			for _, day := range days {
+
+				// For performance validate that each date might be parse of a valid
+				// result before searching inside the date.
+				searchDate := tg.dateNoNormalize(year, month, day, 0, 0, 0)
+				if searchDate == UNKNOWN || dateNow.Before(searchDate) {
+					continue
+				}
+
 				for _, hour := range hours {
 
 					// Cheesy, cheesy daylight savings hack.
