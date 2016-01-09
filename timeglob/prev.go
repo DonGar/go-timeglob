@@ -16,7 +16,7 @@ func (tg *TimeGlob) Prev(now time.Time) time.Time {
 	return result
 }
 
-func (tg *TimeGlob) expandPrev(now time.Time) (years, months, days, hours, minutes []int) {
+func (tg *TimeGlob) expandPrev(now time.Time) (years, months, days, hours, minutes, seconds []int) {
 	// Expand wildcard values out to explict lists of values.
 
 	years = reverseCopy(tg.year)
@@ -45,11 +45,16 @@ func (tg *TimeGlob) expandPrev(now time.Time) (years, months, days, hours, minut
 		minutes = intRange(61, 0)
 	}
 
-	return years, months, days, hours, minutes
+	seconds = reverseCopy(tg.second)
+	if len(seconds) == 0 {
+		seconds = intRange(61, 0)
+	}
+
+	return years, months, days, hours, minutes, seconds
 }
 
 func (tg *TimeGlob) prevDate(now time.Time) time.Time {
-	years, months, days, hours, minutes := tg.expandPrev(now)
+	years, months, days, hours, minutes, seconds := tg.expandPrev(now)
 
 	for _, year := range years {
 		for _, month := range months {
@@ -67,18 +72,22 @@ func (tg *TimeGlob) prevDate(now time.Time) time.Time {
 
 						if base.Hour() == advanced.Hour() {
 							for _, minute := range minutes {
-								result := tg.adjustMinutesSeconds(advanced, minute, 0)
-								if result != UNKNOWN && (now.Equal(result) || now.After(result)) {
-									return result
+								for _, second := range seconds {
+									result := tg.adjustMinutesSeconds(advanced, minute, second)
+									if result != UNKNOWN && (now.Equal(result) || now.After(result)) {
+										return result
+									}
 								}
 							}
 						}
 					}
 
 					for _, minute := range minutes {
-						result := tg.dateNoNormalize(year, month, day, hour, minute, 0)
-						if result != UNKNOWN && (now.Equal(result) || now.After(result)) {
-							return result
+						for _, second := range seconds {
+							result := tg.dateNoNormalize(year, month, day, hour, minute, second)
+							if result != UNKNOWN && (now.Equal(result) || now.After(result)) {
+								return result
+							}
 						}
 					}
 				}

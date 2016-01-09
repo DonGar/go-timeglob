@@ -18,7 +18,7 @@ func (tg *TimeGlob) Next(now time.Time) time.Time {
 	return result
 }
 
-func (tg *TimeGlob) expandNext(now time.Time) (years, months, days, hours, minutes []int) {
+func (tg *TimeGlob) expandNext(now time.Time) (years, months, days, hours, minutes, seconds []int) {
 	// Expand wildcard values out to explict lists of values.
 
 	years = tg.year
@@ -47,20 +47,27 @@ func (tg *TimeGlob) expandNext(now time.Time) (years, months, days, hours, minut
 		minutes = intRange(0, 61)
 	}
 
-	return years, months, days, hours, minutes
+	seconds = tg.second
+	if len(seconds) == 0 {
+		seconds = intRange(0, 61)
+	}
+
+	return years, months, days, hours, minutes, seconds
 }
 
 func (tg *TimeGlob) nextDate(now time.Time) time.Time {
-	years, months, days, hours, minutes := tg.expandNext(now)
+	years, months, days, hours, minutes, seconds := tg.expandNext(now)
 
 	for _, year := range years {
 		for _, month := range months {
 			for _, day := range days {
 				for _, hour := range hours {
 					for _, minute := range minutes {
-						result := tg.dateNoNormalize(year, month, day, hour, minute, 0)
-						if result != UNKNOWN && now.Before(result) {
-							return result
+						for _, second := range seconds {
+							result := tg.dateNoNormalize(year, month, day, hour, minute, second)
+							if result != UNKNOWN && now.Before(result) {
+								return result
+							}
 						}
 					}
 
@@ -75,9 +82,11 @@ func (tg *TimeGlob) nextDate(now time.Time) time.Time {
 
 						if base.Hour() == advanced.Hour() {
 							for _, minute := range minutes {
-								result := tg.adjustMinutesSeconds(advanced, minute, 0)
-								if result != UNKNOWN && now.Before(result) {
-									return result
+								for _, second := range seconds {
+									result := tg.adjustMinutesSeconds(advanced, minute, second)
+									if result != UNKNOWN && now.Before(result) {
+										return result
+									}
 								}
 							}
 						}
