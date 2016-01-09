@@ -5,6 +5,19 @@ import (
 	"time"
 )
 
+func validatePrev(c *check.C, tg *TimeGlob, now, expected time.Time) {
+	c.Check(tg.Prev(now), check.Equals, expected)
+}
+
+func validatePrevSequence(c *check.C, tg *TimeGlob, start time.Time, expected []time.Time) {
+	for _, exp := range expected {
+		start = tg.Prev(start)
+		c.Check(start, check.Equals, exp)
+		// Prev uses <= logic so would enver step back without help.
+		start = start.Add(-1 * time.Nanosecond)
+	}
+}
+
 func (suite *MySuite) TestPrevExplicit(c *check.C) {
 	tg, err := Parse("2015/11/25 19:37 America/New_York")
 	c.Assert(err, check.IsNil)
@@ -13,38 +26,31 @@ func (suite *MySuite) TestPrevExplicit(c *check.C) {
 
 	// Year
 	now := tg.dateNoNormalize(2016, 1, 1, 0, 0)
-	result := tg.Prev(now)
-	c.Check(result, check.Equals, matched)
+	validatePrev(c, tg, now, matched)
 
 	// Month
 	now = tg.dateNoNormalize(2015, 12, 16, 20, 40)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, matched)
+	validatePrev(c, tg, now, matched)
 
 	// Day
 	now = tg.dateNoNormalize(2015, 11, 30, 20, 40)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, matched)
+	validatePrev(c, tg, now, matched)
 
 	// We don't have to be much in the future for this to match.
 	now = matched.Add(time.Nanosecond)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, matched)
+	validatePrev(c, tg, now, matched)
 
 	// Exact time.
 	now = matched
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, matched)
+	validatePrev(c, tg, now, matched)
 
 	// Earlier time.
 	now = tg.dateNoNormalize(2015, 11, 25, 19, 36)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, UNKNOWN)
+	validatePrev(c, tg, now, UNKNOWN)
 
 	// Much earlier time.
 	now = tg.dateNoNormalize(2014, 1, 1, 0, 0)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, UNKNOWN)
+	validatePrev(c, tg, now, UNKNOWN)
 }
 
 func (suite *MySuite) TestPrevDate(c *check.C) {
@@ -249,34 +255,45 @@ func (suite *MySuite) TestPrevWild(c *check.C) {
 }
 
 func (suite *MySuite) TestPrevComma(c *check.C) {
-	tg, err := Parse("2015,2016/2,3/10,20 2,14:0,15,30,45 UTC")
+	tg, err := Parse("2015,2016/2,3/10,20 2,14:0,30 UTC")
 	c.Assert(err, check.IsNil)
 
-	now := tg.dateNoNormalize(2018, 3, 1, 0, 0)
-	result := tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 14, 45))
-
-	now = tg.dateNoNormalize(2016, 4, 15, 5, 0)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 14, 45))
-
-	now = tg.dateNoNormalize(2016, 3, 20, 14, 44)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 14, 30))
-
-	now = tg.dateNoNormalize(2016, 3, 20, 14, 29)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 14, 15))
-
-	now = tg.dateNoNormalize(2016, 3, 20, 14, 14)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 14, 0))
-
-	now = tg.dateNoNormalize(2016, 3, 20, 13, 59)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, tg.dateNoNormalize(2016, 3, 20, 2, 45))
-
-	now = tg.dateNoNormalize(2012, 3, 20, 14, 45)
-	result = tg.Prev(now)
-	c.Check(result, check.Equals, UNKNOWN)
+	// Walk through the entire sequence.
+	validatePrevSequence(c, tg,
+		tg.dateNoNormalize(2017, 3, 1, 0, 0),
+		[]time.Time{
+			tg.dateNoNormalize(2016, 3, 20, 14, 30),
+			tg.dateNoNormalize(2016, 3, 20, 14, 0),
+			tg.dateNoNormalize(2016, 3, 20, 2, 30),
+			tg.dateNoNormalize(2016, 3, 20, 2, 0),
+			tg.dateNoNormalize(2016, 3, 10, 14, 30),
+			tg.dateNoNormalize(2016, 3, 10, 14, 0),
+			tg.dateNoNormalize(2016, 3, 10, 2, 30),
+			tg.dateNoNormalize(2016, 3, 10, 2, 0),
+			tg.dateNoNormalize(2016, 2, 20, 14, 30),
+			tg.dateNoNormalize(2016, 2, 20, 14, 0),
+			tg.dateNoNormalize(2016, 2, 20, 2, 30),
+			tg.dateNoNormalize(2016, 2, 20, 2, 0),
+			tg.dateNoNormalize(2016, 2, 10, 14, 30),
+			tg.dateNoNormalize(2016, 2, 10, 14, 0),
+			tg.dateNoNormalize(2016, 2, 10, 2, 30),
+			tg.dateNoNormalize(2016, 2, 10, 2, 0),
+			tg.dateNoNormalize(2015, 3, 20, 14, 30),
+			tg.dateNoNormalize(2015, 3, 20, 14, 0),
+			tg.dateNoNormalize(2015, 3, 20, 2, 30),
+			tg.dateNoNormalize(2015, 3, 20, 2, 0),
+			tg.dateNoNormalize(2015, 3, 10, 14, 30),
+			tg.dateNoNormalize(2015, 3, 10, 14, 0),
+			tg.dateNoNormalize(2015, 3, 10, 2, 30),
+			tg.dateNoNormalize(2015, 3, 10, 2, 0),
+			tg.dateNoNormalize(2015, 2, 20, 14, 30),
+			tg.dateNoNormalize(2015, 2, 20, 14, 0),
+			tg.dateNoNormalize(2015, 2, 20, 2, 30),
+			tg.dateNoNormalize(2015, 2, 20, 2, 0),
+			tg.dateNoNormalize(2015, 2, 10, 14, 30),
+			tg.dateNoNormalize(2015, 2, 10, 14, 0),
+			tg.dateNoNormalize(2015, 2, 10, 2, 30),
+			tg.dateNoNormalize(2015, 2, 10, 2, 0),
+			UNKNOWN,
+		})
 }
